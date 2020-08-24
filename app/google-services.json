@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "537154856566",
+    "firebase_url": "https://maptest-285709.firebaseio.com",
+    "project_id": "maptest-285709",
+    "storage_bucket": "maptest-285709.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:537154856566:android:2ddc63a774fb592117e157",
+        "android_client_info": {
+          "package_name": "com.ludovic.go4lunch"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "537154856566-qgd0iton29qaoqbomf1dlfk218bln9hj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ludovic.go4lunch",
+            "certificate_hash": "f5a0fc1ae8af0453b138bc1134fab662eb4cb7be"
+          }
+        },
+        {
+          "client_id": "537154856566-94fuqriluspeb806dijpc4dnmehvmqrv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCVgvM11RhAiyDPojuT8HuTnznW16J6Pfw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "537154856566-94fuqriluspeb806dijpc4dnmehvmqrv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
