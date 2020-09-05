@@ -28,12 +28,12 @@ public class LunchActivity extends AppCompatActivity {
                 new MapsFragment()).commit();
 
     }
+
         private BottomNavigationView.OnNavigationItemSelectedListener navListener =
                 new BottomNavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                         Fragment selectedFragment = null;
-
                         switch (item.getItemId()) {
                             case R.id.nav_map:
                                 selectedFragment = new MapsFragment();
@@ -45,11 +45,9 @@ public class LunchActivity extends AppCompatActivity {
                                 selectedFragment = new WorkmatesFragment();
                                 break;
                         }
-
                         assert selectedFragment != null;
                         getSupportFragmentManager().beginTransaction().replace(R.id.main_frame,
                                 selectedFragment).commit();
-
                         return true;
                     }
                 };

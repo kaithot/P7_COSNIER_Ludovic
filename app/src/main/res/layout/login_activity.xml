@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_activity_coordinator_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.ludovic.go4lunch.LunchActivity">
+
+    <!-- MAIN CONTAINER -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@mipmap/ic_background_background"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <!-- IMAGE VIEW Go4Lunch -->
+        <ImageView
+            android:layout_width="188dp"
+            android:layout_height="190dp"
+            android:layout_margin="@dimen/default_large_margin"
+            app:srcCompat="@drawable/ic_logo_go4lunch" />
+
+        <!-- TITLE FIREBASE OC -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/default_margin"
+            android:text="@string/app_name"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/default_title_size"
+            android:textStyle="bold" />
+
+        <!-- DESCRIPTION FIREBASE OC -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/default_margin"
+            android:text="@string/main_activity_description"
+            android:textAlignment="center"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!-- BUTTONS CONTAINER -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/default_large_margin"
+            android:gravity="top"
+            android:orientation="vertical">
+
+            <!-- BUTTON LOGIN -->
+            <Button
+                android:id="@+id/main_activity_button_login"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/default_large_margin"
+                android:background="@color/colorOrange"
+                android:padding="@dimen/default_large_margin"
+                android:text="@string/login"
+                android:textColor="#fff"
+                android:textSize="@dimen/default_text_size" />
+
+            <!-- BUTTON CHAT -->
+            <Button
+                android:id="@+id/main_activity_button_chat"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/default_large_margin"
+                android:background="@color/colorOrange"
+                android:padding="@dimen/default_large_margin"
+                android:text="@string/chat_with_mentor"
+                android:textColor="#fff"
+                android:textSize="@dimen/default_text_size" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

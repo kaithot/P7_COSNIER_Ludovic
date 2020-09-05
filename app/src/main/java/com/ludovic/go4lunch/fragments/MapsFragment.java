@@ -1,7 +1,5 @@
 package com.ludovic.go4lunch.fragments;
 
-
-
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -21,7 +19,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.ludovic.go4lunch.R;
-import com.ludovic.go4lunch.utils.PermissionUtils;
+import com.ludovic.go4lunch.utils.BaseActivity;
 
 public class MapsFragment extends Fragment implements   GoogleMap.OnMyLocationButtonClickListener,
                                                         GoogleMap.OnMyLocationClickListener,
@@ -82,7 +80,7 @@ public class MapsFragment extends Fragment implements   GoogleMap.OnMyLocationBu
             }
         } else {
             // Permission to access the location is missing. Show rationale and request permission
-            PermissionUtils.requestPermission((AppCompatActivity) getActivity(), LOCATION_PERMISSION_REQUEST_CODE,
+            BaseActivity.requestPermission((AppCompatActivity) getActivity(), LOCATION_PERMISSION_REQUEST_CODE,
                     Manifest.permission.ACCESS_FINE_LOCATION, true);
         }
         // [END maps_check_location_permission]
@@ -108,7 +106,7 @@ public class MapsFragment extends Fragment implements   GoogleMap.OnMyLocationBu
             return;
         }
 
-        if (PermissionUtils.isPermissionGranted(permissions, grantResults, Manifest.permission.ACCESS_FINE_LOCATION)) {
+        if (BaseActivity.isPermissionGranted(permissions, grantResults, Manifest.permission.ACCESS_FINE_LOCATION)) {
             // Enable the my location layer if the permission has been granted.
             enableMyLocation();
         } else {
@@ -135,7 +133,7 @@ public class MapsFragment extends Fragment implements   GoogleMap.OnMyLocationBu
      * Displays a dialog with error message explaining that the location permission is missing.
      */
     private void showMissingPermissionError() {
-        PermissionUtils.PermissionDeniedDialog
+        BaseActivity.PermissionDeniedDialog
                 .newInstance(true).show(getFragmentManager(), "dialog");
     }
 }
