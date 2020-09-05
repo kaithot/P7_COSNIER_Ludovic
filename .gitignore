@@ -1,2 +1,10 @@
 
 .idea/
+
+.gradle/
+
+build/
+
+.DS_Store
+
+local.properties

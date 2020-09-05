@@ -2,7 +2,8 @@
     <string name="app_name">Go4Lunch</string>
     <string name="main_activity_description">Recherche un restaurant.</string>
     <string name="login">Connexion</string>
-    <string name="chat_with_mentor">Discute avec un mentor</string>
+    <string name="chat_with_mentor">aretestyfgur</string>
+    <string name="google_sign_in_text">Connexion avec Google</string>
     <string name="title_activity_maps">Map View</string>
     <string name="nav_map">Map View</string>
     <string name="nav_list">List View</string>
@@ -26,6 +27,7 @@
     <string name="connection_succeed">Successful authentication !</string>
     <string name="button_login_text_logged">Display profile</string>
     <string name="button_login_text_not_logged">Log in</string>
+    <string name="server_client_id">967752545343-gr34mo8qsq2fr1oeqtjj3i7o1gnbb603.apps.googleusercontent.com</string>
 
     <!--    Permissions    -->
     <string name="permission_rationale_location">Access to the location service is required to demonstrate the \'my location\' feature, which shows your current location on the map.</string>

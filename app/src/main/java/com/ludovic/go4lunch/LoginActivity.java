@@ -2,33 +2,40 @@ package com.ludovic.go4lunch;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.ludovic.go4lunch.utils.BaseActivity;
 
-import java.lang.reflect.Array;
-import java.util.Arrays;
 import java.util.List;
 
 /**
  * Created by Ludovic Cosnier 01/09/2020
  */
-public class LoginActivity extends BaseActivity {
+public class LoginActivity extends BaseActivity implements View.OnClickListener {
 
     //FOR DATA
     //Identifier for Sign-In Activity
     private static final int RC_SIGN_IN = 123;
     //private Button loginBtn;
 
-    List<AuthUI.IdpConfig>providers;
+    List<AuthUI.IdpConfig> providers;
+
+    GoogleSignInOptions gso;
+    private GoogleSignInClient mGoogleSignInClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,43 +44,73 @@ public class LoginActivity extends BaseActivity {
 
         //loginBtn = findViewById(R.id.main_activity_button_login);
 
-        //Init  provider
-        providers = Arrays.asList(
+        // Configure sign-in to request the user's ID, email address, and basic
+        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
 
-                new AuthUI.IdpConfig.FacebookBuilder().build(), //Facebook builder
-                new AuthUI.IdpConfig.GoogleBuilder().build()); //Google builder
+        // Build a GoogleSignInClient with the options specified by gso.
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+        findViewById(R.id.google_sign_in_button).setOnClickListener(this);
 
-        showSignInOption();
 
     }
 
-    private void showSignInOption() {
-        startActivityForResult(
-                AuthUI.getInstance().createSignInIntentBuilder()
-                .setAvailableProviders(providers)
-                .setTheme(R.style.LoginTheme)
-                .build(),RC_SIGN_IN
-        );
+
+    private void updateUI(GoogleSignInAccount account) {
+        Toast.makeText(this, "" + account.getEmail(), Toast.LENGTH_SHORT).show();
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == RC_SIGN_IN)
-            {
-            IdpResponse response = IdpResponse.fromResultIntent(data);
-            if (resultCode == RESULT_OK)
-            {
-                //Get User
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                //Get email on Toast
-                Toast.makeText(this,""+user.getEmail(),Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
+
 
     @Override
     public int getFragmentLayout() {
         return R.layout.lunch_activity;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.google_sign_in_button:
+                googleSignIn();
+                break;
+            default:
+                System.out.println("case not implemented");
+        }
+    }
+
+    private void googleSignIn() {
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
+        if (requestCode == RC_SIGN_IN) {
+            // The Task returned from this call is always completed, no need to attach
+            // a listener.
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            handleSignInResult(task);
+        }
+    }
+
+    private void handleSignInResult(Task<GoogleSignInAccount> task) {
+        try {
+            GoogleSignInAccount account = task.getResult(ApiException.class);
+            //Get User
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            // Signed in successfully, show authenticated UI.
+            updateUI(account);
+        } catch (ApiException e) {
+            // The ApiException status code indicates the detailed failure reason.
+            // Please refer to the GoogleSignInStatusCodes class reference for more information.
+            Log.w("sign in activity", "signInResult:failed code=" + e.getStatusCode(), e);
+            updateUI(null);
+        }
+
     }
 }

@@ -65,18 +65,10 @@
                 android:textColor="#fff"
                 android:textSize="@dimen/default_text_size" />
 
-            <!-- BUTTON CHAT -->
-            <Button
-                android:id="@+id/main_activity_button_chat"
-                style="?android:attr/borderlessButtonStyle"
+            <com.google.android.gms.common.SignInButton
+                android:id="@+id/google_sign_in_button"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/default_large_margin"
-                android:background="@color/colorOrange"
-                android:padding="@dimen/default_large_margin"
-                android:text="@string/chat_with_mentor"
-                android:textColor="#fff"
-                android:textSize="@dimen/default_text_size" />
+                android:layout_height="wrap_content" />
 
         </LinearLayout>
 
