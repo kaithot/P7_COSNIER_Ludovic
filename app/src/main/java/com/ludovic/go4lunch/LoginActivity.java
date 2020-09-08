@@ -6,10 +6,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
-
 import com.firebase.ui.auth.AuthUI;
-import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -18,9 +15,11 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.ludovic.go4lunch.api.UserHelper;
 import com.ludovic.go4lunch.utils.BaseActivity;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by Ludovic Cosnier 01/09/2020
@@ -53,6 +52,11 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
         findViewById(R.id.google_sign_in_button).setOnClickListener(this);
+
+        // Check for existing Google Sign In account, if the user is already signed in
+        // the GoogleSignInAccount will be non-null.
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        updateUI(account);
 
 
     }
@@ -102,15 +106,40 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         try {
             GoogleSignInAccount account = task.getResult(ApiException.class);
             //Get User
+            // CREATE USER IN FIRESTORE
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             // Signed in successfully, show authenticated UI.
             updateUI(account);
+            startLunchActivity();
         } catch (ApiException e) {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
             Log.w("sign in activity", "signInResult:failed code=" + e.getStatusCode(), e);
             updateUI(null);
         }
+    }
 
+    //---------------------
+    // REST REQUEST
+    //---------------------
+    // Http request that create user in firestore
+
+    private void createUserInFirestore(){
+        if (isCurrentUserLogged()) {
+
+            Log.d("create user : ", "createUserInFirestore");
+            String urlPicture = (Objects.requireNonNull(this.getCurrentUser()).getPhotoUrl() != null) ? Objects.requireNonNull(this.getCurrentUser().getPhotoUrl()).toString() : null;
+            String username = this.getCurrentUser().getDisplayName();
+            String uid = this.getCurrentUser().getUid();
+            String userEmail = this.getCurrentUser().getEmail();
+            UserHelper.createUser(uid, username, userEmail, urlPicture).addOnFailureListener(this.onFailureListener());
+        }
+    }
+
+    // launch lunch activity
+    private void startLunchActivity() {
+        Intent intent = new Intent(this, LunchActivity.class);
+        //intent.putExtra(USER_ID, Objects.requireNonNull(this.getCurrentUser()).getUid());
+        startActivity(intent);
     }
 }

@@ -1,8 +1,7 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
     </style>
 
     <!-- STYLE FOR MAIN ACTIVITY -->
@@ -11,6 +10,10 @@
         <item name="windowActionBar">false</item>
         <item name="actionBarTheme">@null</item>
     </style>
+
+    <!-- Used in NavigationDrawer -->
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <!-- STYLE SIGN-IN ACTIVITY -->
     <style name="LoginTheme" parent="AppTheme">
@@ -29,6 +32,12 @@
         <item name="windowNoTitle">true</item>
         <item name="android:textColorHint">@android:color/white</item>
     </style>
+
+    <style name="ToolBarStyle">I\'m Hungry</style>
+
+    <style name="AppTheme.AppBarOverlay">I'm Hungry</style>
+
+    <style name="AppTheme.PopupOverlay">toolbar</style>
 
 
 </resources>

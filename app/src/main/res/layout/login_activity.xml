@@ -23,7 +23,7 @@
             android:layout_margin="@dimen/default_large_margin"
             app:srcCompat="@drawable/ic_logo_go4lunch" />
 
-        <!-- TITLE FIREBASE OC -->
+        <!-- TITLE -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -53,17 +53,10 @@
             android:orientation="vertical">
 
             <!-- BUTTON LOGIN -->
-            <Button
-                android:id="@+id/main_activity_button_login"
-                style="?android:attr/borderlessButtonStyle"
+            <com.facebook.login.widget.DeviceLoginButton
+                android:id="@+id/facebook_sign_in_button"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/default_large_margin"
-                android:background="@color/colorOrange"
-                android:padding="@dimen/default_large_margin"
-                android:text="@string/login"
-                android:textColor="#fff"
-                android:textSize="@dimen/default_text_size" />
+                android:layout_height="wrap_content" />
 
             <com.google.android.gms.common.SignInButton
                 android:id="@+id/google_sign_in_button"
