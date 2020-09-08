@@ -35,7 +35,7 @@
 
     <style name="ToolBarStyle">I\'m Hungry</style>
 
-    <style name="AppTheme.AppBarOverlay">I'm Hungry</style>
+    <style name="AppTheme.AppBarOverlay">I\'m Hungry</style>
 
     <style name="AppTheme.PopupOverlay">toolbar</style>
 
