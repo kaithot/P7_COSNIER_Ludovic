@@ -107,8 +107,8 @@ public class LunchActivity extends AppCompatActivity
         this.bottomNavigationView = (BottomNavigationView) findViewById(R.id.main_nav);
         bottomNavigationView.setOnNavigationItemSelectedListener(navListener);
 
-        //getSupportFragmentManager().beginTransaction().replace(R.id.main_frame,
-                //new MapsFragment()).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.activity_lunch_frame_layout,
+                new MapsFragment()).commit();
 
     }
 
@@ -129,8 +129,8 @@ public class LunchActivity extends AppCompatActivity
                             break;
                     }
                     assert selectedFragment != null;
-                    //getSupportFragmentManager().beginTransaction().replace(R.id.main_frame,
-                    //        selectedFragment).commit();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.activity_lunch_frame_layout,
+                           selectedFragment).commit();
                     return true;
                 }
             };

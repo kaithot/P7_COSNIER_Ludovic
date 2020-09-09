@@ -55,18 +55,15 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
         // Check for existing Google Sign In account, if the user is already signed in
         // the GoogleSignInAccount will be non-null.
-        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-        updateUI(account);
+        //GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        //updateUI(account);
 
 
     }
-
 
     private void updateUI(GoogleSignInAccount account) {
         Toast.makeText(this, "" + account.getEmail(), Toast.LENGTH_SHORT).show();
     }
-
-
 
     @Override
     public int getFragmentLayout() {

@@ -6,8 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:openDrawer="start"
-    tools:context=".LunchActivity">
+    tools:context=".LunchActivity"
+    tools:openDrawer="start">
 
     <!--include
         layout="@layout/app_bar_main"
@@ -18,22 +18,37 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        >
+        android:orientation="vertical">
 
-    <!-- Toolbar -->
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/activity_lunch_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        app:theme="@style/ToolBarStyle"/>
+        <!-- Toolbar -->
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/activity_lunch_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:theme="@style/ToolBarStyle" />
 
-    <!-- FrameLayout for our fragments -->
-    <FrameLayout
-        android:id="@+id/activity_lunch_frame_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+
+
+        <!-- FrameLayout for our fragments -->
+        <FrameLayout
+            android:id="@+id/activity_lunch_frame_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+
+            <!-- Bottom navigation -->
+            <com.google.android.material.bottomnavigation.BottomNavigationView
+                android:id="@+id/main_nav"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:background="?android:attr/windowBackground"
+                app:itemIconTint="@color/nav_selector"
+                app:itemTextColor="@color/nav_selector"
+                app:menu="@menu/nav_items" />
+        </FrameLayout>
+
+
 
     </LinearLayout>
 
@@ -45,16 +60,5 @@
         android:layout_gravity="start"
         app:headerLayout="@layout/activity_lunch_nav_header"
         app:menu="@menu/activity_lunch_menu_drawer" />
-
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/main_nav"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentBottom="true"
-        android:background="?android:attr/windowBackground"
-        app:itemIconTint="@color/nav_selector"
-        app:itemTextColor="@color/nav_selector"
-        app:menu="@menu/nav_items"/>
 
 </androidx.drawerlayout.widget.DrawerLayout>
