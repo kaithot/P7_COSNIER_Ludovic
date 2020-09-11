@@ -1,11 +1,11 @@
 package com.ludovic.go4lunch;
 
 import android.os.Bundle;
-import android.print.PrinterId;
-import android.view.Gravity;
+import android.text.TextUtils;
 import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.TextView;
 
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 
 import androidx.annotation.NonNull;
@@ -15,13 +15,17 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 import com.ludovic.go4lunch.fragments.ListFragment;
 import com.ludovic.go4lunch.fragments.MapsFragment;
 import com.ludovic.go4lunch.fragments.WorkmatesFragment;
+import com.ludovic.go4lunch.utils.BaseActivity;
 
-public class LunchActivity extends AppCompatActivity
+public class LunchActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     //FOR DESIGN
@@ -29,6 +33,10 @@ public class LunchActivity extends AppCompatActivity
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private BottomNavigationView bottomNavigationView;
+
+    //FOR PROFILE
+    private TextView userNameTextView;
+    private ImageView avatarImageView;
 
 
     @Override
@@ -40,6 +48,7 @@ public class LunchActivity extends AppCompatActivity
         this.configureDrawerLayout();
         this.configureNavigationView();
         this.configureBottomNavigationView();
+        this.updateUIWhenCreating();
 
     }
 
@@ -63,6 +72,8 @@ public class LunchActivity extends AppCompatActivity
             case R.id.nav_settings:
                 break;
             case R.id.nav_logout:
+                FirebaseAuth.getInstance().signOut();
+                finish();
                 break;
             default:
                 break;
@@ -135,5 +146,32 @@ public class LunchActivity extends AppCompatActivity
                 }
             };
 
+    //  Update UI when activity is creating
+    private void updateUIWhenCreating(){
 
+        userNameTextView = navigationView.getHeaderView(0).findViewById(R.id.userName);
+        avatarImageView = navigationView.getHeaderView(0).findViewById(R.id.avatar);
+
+        if (this.getCurrentUser() != null){
+            //Get picture URL from Firebase
+            if (this.getCurrentUser().getPhotoUrl() != null) {
+                Glide.with(this)
+                        .load(this.getCurrentUser().getPhotoUrl())
+                        .apply(RequestOptions.circleCropTransform())
+                        .into(avatarImageView);
+            }
+
+            //Get username from Firebase
+            String username = TextUtils.isEmpty(this.getCurrentUser().getDisplayName()) ? getString(R.string.info_no_username_found) : this.getCurrentUser().getDisplayName();
+
+            //Update views with data
+            this.userNameTextView.setText(username);
+        }
+    }
+
+   @Override
+   public int getFragmentLayout() {
+       return R.layout.lunch_activity;
+   }
+    
 }
