@@ -47,6 +47,7 @@
     <string name="lunch">YOUR LUNCH</string>
     <string name="settings">SETTINGS</string>
     <string name="logout">LOGOUT</string>
+    <string name="facebook_client_token">1b69c12d7ebf9ef7b60bfbb5987e0329</string>
 
 
 </resources>

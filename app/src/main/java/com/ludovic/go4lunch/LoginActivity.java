@@ -2,35 +2,25 @@ package com.ludovic.go4lunch;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
-import com.firebase.ui.auth.AuthUI;
-import com.firebase.ui.auth.data.remote.FacebookSignInHandler;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInApi;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FacebookAuthProvider;
@@ -40,8 +30,6 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.ludovic.go4lunch.api.UserHelper;
 import com.ludovic.go4lunch.utils.BaseActivity;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 public class LoginActivity extends BaseActivity implements View.OnClickListener {
@@ -51,7 +39,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     //FOR DATA
     //Identifier for Sign-In Activity
     private static final int RC_SIGN_IN_GOOGLE = 123;
-    private static final int RC_SIGN_IN_FACEBOOK = 456;
+    private static final int RC_SIGN_IN_FACEBOOK = 64206;
 
     private FirebaseAuth mAuth;
 
@@ -65,7 +53,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         setContentView(R.layout.login_activity);
 
         mCallbackManager = CallbackManager.Factory.create(); // for facebook
-        loginButton = (LoginButton)findViewById(R.id.facebook_sign_in_button);
+        loginButton = findViewById(R.id.facebook_sign_in_button);
         loginButton.setReadPermissions("email", "public_profile");
 
         loginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
@@ -112,15 +100,14 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     public void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
-        //FirebaseUser currentUser = getCurrentUser();
-
-        if (isCurrentUserLogged()) {
-            startLunchActivity();
-        }
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        updateUI(currentUser);
     }
 
     private void updateUI(FirebaseUser account) {
-        Toast.makeText(this, "" + account.getEmail(), Toast.LENGTH_SHORT).show();
+        if(account!= null) {
+            Toast.makeText(this, "" + account.getEmail(), Toast.LENGTH_SHORT).show();
+        }
     }
 
 
@@ -130,8 +117,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
             case R.id.google_sign_in_button:
                 googleSignIn();
                 break;
-            case R.id.facebook_sign_in_button:
-                facebookSignIn();
             default:
                 System.out.println("case not implemented");
         }
@@ -143,26 +128,31 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     }
 
     private void facebookSignIn() {
-        startActivityForResult(,RC_SIGN_IN_FACEBOOK);
+        startActivityForResult(null,RC_SIGN_IN_FACEBOOK);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
-        if (requestCode == RC_SIGN_IN_GOOGLE) {
-            // The Task returned from this call is always completed, no need to attach
-            // a listener.
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            handleSignInResult(task);}
-        else{
-            // Pass the activity result back to the Facebook SDK
-            mCallbackManager.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode){
+            case RC_SIGN_IN_GOOGLE:
+                // The Task returned from this call is always completed, no need to attach
+                // a listener.
+                Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+                handleGoogleSignInResult(task);
+                break;
+            case RC_SIGN_IN_FACEBOOK:
+                // Pass the activity result back to the Facebook SDK
+                mCallbackManager.onActivityResult(requestCode, resultCode, data);
+                break;
+            default:
+                Log.w("tag","nothing to do on result !!!");
         }
     }
 
-    private void handleSignInResult(Task<GoogleSignInAccount> task) {
+    private void handleGoogleSignInResult(Task<GoogleSignInAccount> task) {
         try {
             // Google Sign In was successful, authenticate with Firebase
             GoogleSignInAccount account = task.getResult(ApiException.class);
@@ -191,7 +181,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                             // Sign in success, update UI with the signed-in user's information
                             Log.d("Info :", "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            updateUI(user);
+                            createUserInFirestore();
                             startLunchActivity();
                         } else {
                             // If sign in fails, display a message to the user.
@@ -203,6 +193,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                     }
                 });
     }
+
 
     private boolean firebaseAuthWithGoogle(String idToken) {
 
