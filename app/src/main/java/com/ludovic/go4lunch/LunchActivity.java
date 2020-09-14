@@ -1,5 +1,6 @@
 package com.ludovic.go4lunch;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.MenuItem;
@@ -17,6 +18,8 @@ import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -72,8 +75,7 @@ public class LunchActivity extends BaseActivity
             case R.id.nav_settings:
                 break;
             case R.id.nav_logout:
-                FirebaseAuth.getInstance().signOut();
-                finish();
+                this.signOutFromFirebase();
                 break;
             default:
                 break;
@@ -146,6 +148,25 @@ public class LunchActivity extends BaseActivity
                 }
             };
 
+
+    //---------------------
+    //REST REQUESTS
+    //---------------------
+    // Create http requests (SignOut)
+    private void signOutFromFirebase() {
+        AuthUI.getInstance()
+                .signOut(this)
+                .addOnSuccessListener(this, this.updateUIAfterRESTRequestsCompleted());
+    }
+
+    // Create onCompleteListener called after tasks ended
+    private OnSuccessListener<Void> updateUIAfterRESTRequestsCompleted() {
+        return aVoid -> {
+            finish();
+            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+            startActivity(intent);
+        };
+    }
     //  Update UI when activity is creating
     private void updateUIWhenCreating(){
 

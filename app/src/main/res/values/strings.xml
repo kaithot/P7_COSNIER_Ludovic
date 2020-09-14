@@ -3,7 +3,7 @@
     <string name="main_activity_description">Recherche un restaurant.</string>
     <string name="login">Connexion</string>
     <string name="chat_with_mentor">aretestyfgur</string>
-    <string name="google_sign_in_text">Connexion avec Google</string>
+    <!--string name="google_sign_in_text">Connexion avec Google</string-->
     <string name="title">I\'m Hungry</string>
     <string name="nav_map">Map View</string>
     <string name="nav_list">List View</string>
@@ -11,11 +11,6 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
-    <string name="login_facebook">"Sign in with Facebook"</string>
-    <string name="login_google">"Sign in with Google"</string>
-    <string name="login_email">"Sign in with email"</string>
-    <string name="login_already">"Go!"</string>
-    
     <string name="facebook_application_id" translatable="false">771461730309446</string>
     <string name="facebook_login_protocol_scheme" translatable="false">fb771461730309446</string>
 
