@@ -11,9 +11,6 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
-    <string name="facebook_application_id" translatable="false">771461730309446</string>
-    <string name="facebook_login_protocol_scheme" translatable="false">fb771461730309446</string>
-
     <!-- AUTHENTICATION ACTIVITY -->
     <string name="error_not_connected">You should be connected</string>
     <string name="error_authentication_canceled">"Authentication cancelled"</string>
@@ -23,6 +20,9 @@
     <string name="button_login_text_logged">Display profile</string>
     <string name="button_login_text_not_logged">Log in</string>
     <string name="server_client_id">967752545343-gr34mo8qsq2fr1oeqtjj3i7o1gnbb603.apps.googleusercontent.com</string>
+    <string name="facebook_application_id" translatable="false">771461730309446</string>
+    <string name="facebook_login_protocol_scheme" translatable="false">fb771461730309446</string>
+    <string name="facebook_client_token">1b69c12d7ebf9ef7b60bfbb5987e0329</string>
 
     <!--    Permissions    -->
     <string name="permission_rationale_location">Access to the location service is required to demonstrate the \'my location\' feature, which shows your current location on the map.</string>
@@ -42,7 +42,14 @@
     <string name="lunch">YOUR LUNCH</string>
     <string name="settings">SETTINGS</string>
     <string name="logout">LOGOUT</string>
-    <string name="facebook_client_token">1b69c12d7ebf9ef7b60bfbb5987e0329</string>
+
+
+    <string name="restaurant_name">Restaurant\'s name</string>
+    <string name="restaurant_address">Restaurant\'s address</string>
+    <string name="call">Call</string>
+    <string name="like">like</string>
+    <string name="website">website</string>
+    <string name="no_lunch">You aren\'t eating this noon?</string>
 
 
 </resources>

@@ -1,11 +1,14 @@
 package com.ludovic.go4lunch;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 
@@ -19,14 +22,29 @@ import androidx.fragment.app.Fragment;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.libraries.places.api.Places;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.ludovic.go4lunch.api.ApiClient;
+import com.ludovic.go4lunch.api.ApiInterface;
+import com.ludovic.go4lunch.api.UserHelper;
 import com.ludovic.go4lunch.fragments.ListFragment;
 import com.ludovic.go4lunch.fragments.MapsFragment;
 import com.ludovic.go4lunch.fragments.WorkmatesFragment;
+import com.ludovic.go4lunch.models.User;
 import com.ludovic.go4lunch.utils.BaseActivity;
+
+import java.util.List;
+
+import Nearby.NearbyPlacesList;
+import Nearby.ResultNearbySearch;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class LunchActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -41,11 +59,20 @@ public class LunchActivity extends BaseActivity
     private TextView userNameTextView;
     private ImageView avatarImageView;
 
+    MapsFragment fragment = new MapsFragment();
+    private Context mContext;
+    private List<ResultNearbySearch> results;
+    private String placeId = "place_id";
+    private int radius;
+    private String type;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.lunch_activity);
+
+        Places.initialize(getApplicationContext(), getString(R.string.maps_api_key));
 
         this.configureToolBar();
         this.configureDrawerLayout();
@@ -129,7 +156,7 @@ public class LunchActivity extends BaseActivity
             new BottomNavigationView.OnNavigationItemSelectedListener() {
                 @Override
                 public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                    Fragment selectedFragment = null;
+                    Fragment selectedFragment = fragment;
                     switch (item.getItemId()) {
                         case R.id.nav_map:
                             selectedFragment = new MapsFragment();
@@ -167,6 +194,7 @@ public class LunchActivity extends BaseActivity
             startActivity(intent);
         };
     }
+
     //  Update UI when activity is creating
     private void updateUIWhenCreating(){
 
@@ -189,6 +217,63 @@ public class LunchActivity extends BaseActivity
             this.userNameTextView.setText(username);
         }
     }
+
+    private void searchNearbyRestaurants(double mylat, double mylng){
+        Log.d("info :", "searchNearbyRestaurants: ");
+        String keyword = "";
+        String key = getString(R.string.maps_api_key);
+        String lat = String.valueOf(mylat);
+        String lng = String.valueOf(mylng);
+
+        String location = lat+","+lng;
+
+        Call<NearbyPlacesList> call;
+        ApiInterface googleMapService = ApiClient.getClient().create(ApiInterface.class);
+        call = googleMapService.getNearBy(location, radius, type, keyword, key);
+        call.enqueue(new Callback<NearbyPlacesList>() {
+            @Override
+            public void onResponse(@NonNull Call<NearbyPlacesList> call, @NonNull Response<NearbyPlacesList> response) {
+                if (response.isSuccessful()) {
+                    if (response.body() != null) {
+                        results = response.body().getResults();
+                        fragment.updateNearbyPlaces(results);
+                        
+                    }
+
+                } else {
+                    Toast.makeText(getApplicationContext(), "Failed", Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<NearbyPlacesList> call, @NonNull Throwable t) {
+                Log.d("info", "onFailure: ");
+                Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void startDetailActivity() {
+        String userId=  UserHelper.getCurrentUserId();
+        UserHelper.getUser(userId).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                User user = documentSnapshot.toObject(User.class);
+                String lunch;
+                if (user != null) {
+                    lunch = user.getRestToday();
+                    if (lunch.equals("")) {
+                        Toast.makeText(mContext, R.string.no_lunch, Toast.LENGTH_LONG).show();
+                    } else {
+                        Intent WVIntent = new Intent(mContext, RestaurantInformation.class);
+                        WVIntent.putExtra(placeId, lunch);
+                        startActivity(WVIntent);
+                    }
+                }
+            }
+        });
+    }
+
 
    @Override
    public int getFragmentLayout() {
