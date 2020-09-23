@@ -1,7 +1,5 @@
 package Nearby;
 
-import android.location.Location;
-
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -9,9 +7,9 @@ import com.google.gson.annotations.SerializedName;
 
     @SerializedName("location")
     @Expose
-    private Location location;
+    private Nearby.Location location;
 
-    public Location getLocation() {
+    public Nearby.Location getLocation() {
         return location;
     }
 

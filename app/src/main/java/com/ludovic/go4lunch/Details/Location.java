@@ -1,5 +1,4 @@
-package Nearby;
-
+package com.ludovic.go4lunch.Details;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -28,4 +27,5 @@ public class Location {
     public void setLng(Double lng) {
         this.lng = lng;
     }
+
 }
