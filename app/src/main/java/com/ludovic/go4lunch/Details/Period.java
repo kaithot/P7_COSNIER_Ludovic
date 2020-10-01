@@ -3,7 +3,7 @@ package com.ludovic.go4lunch.Details;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-class Period {
+public class Period {
 
     @SerializedName("close")
     @Expose

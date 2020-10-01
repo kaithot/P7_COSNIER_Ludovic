@@ -1,7 +1,10 @@
 package com.ludovic.go4lunch;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -15,6 +18,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -22,12 +26,16 @@ import androidx.fragment.app.Fragment;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.auth.AuthUI;
-import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.ludovic.go4lunch.api.ApiClient;
 import com.ludovic.go4lunch.api.ApiInterface;
@@ -40,14 +48,23 @@ import com.ludovic.go4lunch.utils.BaseActivity;
 
 import java.util.List;
 
-import Nearby.NearbyPlacesList;
-import Nearby.ResultNearbySearch;
+import com.ludovic.go4lunch.Nearby.NearbyPlacesList;
+import com.ludovic.go4lunch.Nearby.ResultNearbySearch;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class LunchActivity extends BaseActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener,
+                    MapsFragment.locationListener{
+
+    /**
+     * Flag indicating whether a requested permission has been denied after returning in
+     * {@link #onRequestPermissionsResult(int, String[], int[])}.
+     */
+    private boolean permissionDenied = false;
+
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
     //FOR DESIGN
     private Toolbar toolbar;
@@ -59,18 +76,28 @@ public class LunchActivity extends BaseActivity
     private TextView userNameTextView;
     private ImageView avatarImageView;
 
-    MapsFragment fragment = new MapsFragment();
+    MapsFragment fragment1 = new MapsFragment();
+    ListFragment fragment2 = new ListFragment();
+    WorkmatesFragment fragment3 = new WorkmatesFragment();
+
     private Context mContext;
+    private GoogleMap map;
+    private FusedLocationProviderClient fusedLocationClient;
+    private static final float DEFAULT_ZOOM = 15f;
     private List<ResultNearbySearch> results;
     private String placeId = "place_id";
-    private int radius;
-    private String type;
+    private int radius = 1000;
+    private String type = "restaurant";
+
+    private final String TAG = LunchActivity.class.getSimpleName();
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.lunch_activity);
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         Places.initialize(getApplicationContext(), getString(R.string.maps_api_key));
 
@@ -98,6 +125,7 @@ public class LunchActivity extends BaseActivity
 
         switch (id) {
             case R.id.nav_myresto:
+                this.startDetailActivity();
                 break;
             case R.id.nav_settings:
                 break;
@@ -156,16 +184,20 @@ public class LunchActivity extends BaseActivity
             new BottomNavigationView.OnNavigationItemSelectedListener() {
                 @Override
                 public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                    Fragment selectedFragment = fragment;
+                    Fragment selectedFragment = null;
                     switch (item.getItemId()) {
+
                         case R.id.nav_map:
-                            selectedFragment = new MapsFragment();
+                            selectedFragment = fragment1;
+                            fragment1 = new MapsFragment();
                             break;
                         case R.id.nav_list:
-                            selectedFragment = new ListFragment();
+                            selectedFragment = fragment2;
+                            fragment2 = new ListFragment();
                             break;
                         case R.id.nav_workmates:
-                            selectedFragment = new WorkmatesFragment();
+                            selectedFragment = fragment3;
+                            fragment3 = new WorkmatesFragment();
                             break;
                     }
                     assert selectedFragment != null;
@@ -218,26 +250,65 @@ public class LunchActivity extends BaseActivity
         }
     }
 
-    private void searchNearbyRestaurants(double mylat, double mylng){
+    /**
+     * Enables the My Location layer if the fine location permission has been granted.
+     */
+    private void permissions() {
+        // [START maps_check_location_permission]
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            if (map != null) {
+                map.setMyLocationEnabled(true);
+                Task locationResult = fusedLocationClient.getLastLocation();
+                locationResult.addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        // Set the map's camera position to the current location of the device.
+                        Location currentLocation = (Location) task.getResult();
+                        assert currentLocation != null;
+
+                        fragment1.enableMyLocation(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
+                        fragment2.enableMyLocation(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
+                        searchNearbyRestaurants(currentLocation.getLatitude(), currentLocation.getLongitude());
+
+                    } else {
+                        Log.d(TAG, "Current location is null. Using defaults.");
+                        Log.e(TAG, "Exception: %s", task.getException());
+                        Toast.makeText(this, "unable to get current location", Toast.LENGTH_LONG).show();
+                        LatLng mDefaultLocation = new LatLng(-34, 151);
+                        map.moveCamera(CameraUpdateFactory.newLatLngZoom(mDefaultLocation, DEFAULT_ZOOM));
+                        map.getUiSettings().setMyLocationButtonEnabled(false);
+                    }
+                });
+            }
+        } else {
+            // Permission to access the location is missing. Show rationale and request permission
+            BaseActivity.requestPermission((AppCompatActivity) this, LOCATION_PERMISSION_REQUEST_CODE,
+                    Manifest.permission.ACCESS_FINE_LOCATION, true);
+        }
+        // [END maps_check_location_permission]
+    }
+
+    public void searchNearbyRestaurants(double latitude, double longitude){
         Log.d("info :", "searchNearbyRestaurants: ");
-        String keyword = "";
+        //String keyword = "";
         String key = getString(R.string.maps_api_key);
-        String lat = String.valueOf(mylat);
-        String lng = String.valueOf(mylng);
+        String lat = String.valueOf(latitude);
+        String lng = String.valueOf(longitude);
 
         String location = lat+","+lng;
-
         Call<NearbyPlacesList> call;
+        Log.d("info :", "location "+location);
         ApiInterface googleMapService = ApiClient.getClient().create(ApiInterface.class);
-        call = googleMapService.getNearBy(location, radius, type, keyword, key);
+        call = googleMapService.getNearBy(location, radius, type, key);
         call.enqueue(new Callback<NearbyPlacesList>() {
             @Override
             public void onResponse(@NonNull Call<NearbyPlacesList> call, @NonNull Response<NearbyPlacesList> response) {
                 if (response.isSuccessful()) {
                     if (response.body() != null) {
                         results = response.body().getResults();
-                        fragment.updateNearbyPlaces(results);
-                        
+                        fragment1.updateNearbyPlaces(results);
+                        fragment2.updateNearbyPlaces(results);
+                        Log.d("info", "success: "+results.toString());
                     }
 
                 } else {
@@ -247,7 +318,7 @@ public class LunchActivity extends BaseActivity
 
             @Override
             public void onFailure(@NonNull Call<NearbyPlacesList> call, @NonNull Throwable t) {
-                Log.d("info", "onFailure: ");
+                Log.d("info", "onFailure: "+t.getMessage());
                 Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
@@ -274,10 +345,18 @@ public class LunchActivity extends BaseActivity
         });
     }
 
-
    @Override
    public int getFragmentLayout() {
        return R.layout.lunch_activity;
    }
-    
+
+    @Override
+    public void mapReady() {
+        permissions();
+    }
+
+    @Override
+    public void setMap(GoogleMap map) {
+        this.map = map;
+    }
 }

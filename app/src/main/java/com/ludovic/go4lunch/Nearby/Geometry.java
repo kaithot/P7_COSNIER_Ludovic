@@ -1,4 +1,4 @@
-package Nearby;
+package com.ludovic.go4lunch.Nearby;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -7,9 +7,9 @@ import com.google.gson.annotations.SerializedName;
 
     @SerializedName("location")
     @Expose
-    private Nearby.Location location;
+    private com.ludovic.go4lunch.Nearby.Location location;
 
-    public Nearby.Location getLocation() {
+    public com.ludovic.go4lunch.Nearby.Location getLocation() {
         return location;
     }
 

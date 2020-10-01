@@ -9,11 +9,6 @@
     tools:context=".LunchActivity"
     tools:openDrawer="start">
 
-    <!--include
-        layout="@layout/app_bar_main"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" /-->
-
     <!-- MainActivity RootView -->
     <LinearLayout
         android:layout_width="match_parent"
@@ -25,10 +20,7 @@
             android:id="@+id/activity_lunch_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:theme="@style/ToolBarStyle" />
-
-
+            app:theme="@style/ToolbarTheme" />
 
         <!-- FrameLayout for our fragments -->
         <FrameLayout
@@ -47,8 +39,6 @@
                 app:itemTextColor="@color/nav_selector"
                 app:menu="@menu/nav_items" />
         </FrameLayout>
-
-
 
     </LinearLayout>
 

@@ -9,7 +9,7 @@ public class RestaurantResult {
 
     @SerializedName("address_components")
     @Expose
-    private List<AddressComponent> addressComponents = null;
+    private List<AddressComponents> addressComponents = null;
     @SerializedName("adr_address")
     @Expose
     private String adrAddress;
@@ -79,11 +79,11 @@ public class RestaurantResult {
         this.openingHours = openingHours;
     }
 
-    public List<AddressComponent> getAddressComponents() {
+    public List<AddressComponents> getAddressComponents() {
         return addressComponents;
     }
 
-    public void setAddressComponents(List<AddressComponent> addressComponents) {
+    public void setAddressComponents(List<AddressComponents> addressComponents) {
         this.addressComponents = addressComponents;
     }
 

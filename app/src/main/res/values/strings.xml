@@ -2,7 +2,6 @@
     <string name="app_name">Go4Lunch</string>
     <string name="main_activity_description">Recherche un restaurant.</string>
     <string name="login">Connexion</string>
-    <string name="chat_with_mentor">aretestyfgur</string>
     <!--string name="google_sign_in_text">Connexion avec Google</string-->
     <string name="title">I\'m Hungry</string>
     <string name="nav_map">Map View</string>
@@ -50,6 +49,28 @@
     <string name="like">like</string>
     <string name="website">website</string>
     <string name="no_lunch">You aren\'t eating this noon?</string>
+    <string name="workmates">Available workmates</string>
+    <string name="photo_profile">Avatar</string>
+    <string name="isjoining">is joining</string>
+
+    <!-- PHONE CALL -->
+    <string name="no_phone_number">"Phone number is not available"</string>
+    <string name="no_permission_for_call">"Go4Lunch does not have permission to make calls"</string>
+
+    <!-- WEB SITE -->
+    <string name="no_website">"No website found"</string>
+    <string name="place_name">Name</string>
+    <string name="place_address">Address</string>
+    <string name="place_open">opening hours</string>
+    <string name="no_hours">hours not available</string>
+    <string name="closed_today">closed</string>
+    <string name="open_today">open</string>
+    <string name="open_at">open at</string>
+    <string name="place_distance">Distance</string>
+    <string name="pic_team">Number</string>
+    <string name="place_number_choice">Num</string>
+    <string name="place_star">Star</string>
+    <string name="place_photo">Photo</string>
 
 
 </resources>

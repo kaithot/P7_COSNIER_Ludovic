@@ -19,14 +19,14 @@ public class RestHelper {
     }
 
     // --- CREATE ---
-    public static Task<Void> createRestaurant(String restoId, String restoName, String address) {
-        Restaurant restaurantToCreate = new Restaurant(restoName, address);
-        return RestHelper.getRestaurantsCollection().document(restoId).set(restaurantToCreate);
+    public static Task<Void> createRestaurant(String restId, String restName, String address) {
+        Restaurant restaurantToCreate = new Restaurant(restName, address);
+        return RestHelper.getRestaurantsCollection().document(restId).set(restaurantToCreate);
     }
 
     // --- GET ---
-    public static Task<DocumentSnapshot> getRestaurant(String restoId){
-        return RestHelper.getRestaurantsCollection().document(restoId).get();
+    public static Task<DocumentSnapshot> getRestaurant(String restId){
+        return RestHelper.getRestaurantsCollection().document(restId).get();
     }
 
     // --- UPDATE NAME---

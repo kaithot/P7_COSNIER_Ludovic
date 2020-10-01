@@ -33,11 +33,19 @@
         <item name="android:textColorHint">@android:color/white</item>
     </style>
 
-    <style name="ToolBarStyle">I\'m Hungry</style>
+    <!--TOOLBAR-->
+    <style name="ToolbarTheme" parent="AppTheme">
 
-    <style name="AppTheme.AppBarOverlay">I\'m Hungry</style>
+        <item name="android:textColorPrimary">@android:color/white</item>
+        <item name="android:textColorSecondary">@android:color/white</item>
+        <item name="android:background">@color/colorOrange</item>
 
-    <style name="AppTheme.PopupOverlay">toolbar</style>
+    </style>
 
+    <!--Toolbar title-->
+    <style name="Toolbar.TitleText" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">italic</item>
+    </style>
 
 </resources>

@@ -1,4 +1,4 @@
-package Nearby;
+package com.ludovic.go4lunch.Nearby;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

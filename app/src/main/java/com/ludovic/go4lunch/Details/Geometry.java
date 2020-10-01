@@ -1,12 +1,11 @@
 package com.ludovic.go4lunch.Details;
 
-import android.location.Location;
 
 import com.google.geo.type.Viewport;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-class Geometry {
+public class Geometry {
 
     @SerializedName("location")
     @Expose

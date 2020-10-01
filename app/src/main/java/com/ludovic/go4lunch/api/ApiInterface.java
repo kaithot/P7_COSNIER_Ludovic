@@ -1,8 +1,8 @@
 package com.ludovic.go4lunch.api;
 
 
-import Nearby.ListDetailResult;
-import Nearby.NearbyPlacesList;
+import com.ludovic.go4lunch.Nearby.ListDetailResult;
+import com.ludovic.go4lunch.Nearby.NearbyPlacesList;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
@@ -18,6 +18,5 @@ public interface ApiInterface {
         Call<NearbyPlacesList> getNearBy(@Query("location") String location,
                                          @Query("radius") int radius,
                                          @Query("type") String type,
-                                         @Query("keyword") String keyword,
                                          @Query("key") String key);
 }

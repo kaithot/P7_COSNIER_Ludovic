@@ -1,9 +1,6 @@
-package Nearby;
+package com.ludovic.go4lunch.Nearby;
 
 import android.provider.ContactsContract;
-
-import com.google.android.libraries.places.api.model.OpeningHours;
-import com.google.android.libraries.places.api.model.PlusCode;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 

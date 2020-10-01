@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Created by Ludovic Cosnier 16/09/2020
  */
-class OpeningHours {
+public class OpeningHours {
 
     @SerializedName("open_now")
     @Expose

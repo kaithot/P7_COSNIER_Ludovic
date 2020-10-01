@@ -1,65 +1,117 @@
 package com.ludovic.go4lunch.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.google.android.gms.maps.model.LatLng;
+import com.ludovic.go4lunch.Details.RestaurantResult;
 import com.ludovic.go4lunch.R;
+import com.ludovic.go4lunch.RestaurantInformation;
+import com.ludovic.go4lunch.RestaurantsListAdapter;
+import com.ludovic.go4lunch.api.ApiClient;
+import com.ludovic.go4lunch.api.ApiInterface;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link ListFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import java.util.ArrayList;
+import java.util.List;
+
+import com.ludovic.go4lunch.Nearby.ListDetailResult;
+import com.ludovic.go4lunch.Nearby.ResultNearbySearch;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+
 public class ListFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private RecyclerView mRecyclerView;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private final static String TAG = "ListRestoFragment" ;
+    private String PLACEIDRESTO = "resto_place_id";
+
+    private RestaurantsListAdapter adapter;
+    private RestaurantResult mRestaurant;
+    private ArrayList<RestaurantResult> restaurantsList = new ArrayList<>();
+
+    private LatLng userLatLng;
 
     public ListFragment() {
         // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ListFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static ListFragment newInstance(String param1, String param2) {
-        ListFragment fragment = new ListFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_list, container, false);
+        View view =  inflater.inflate(R.layout.fragment_list, container, false);
+        mRecyclerView = view.findViewById(R.id.fragment_restaurants_recyclerview);
+
+        return view;
+    }
+
+    public void updateNearbyPlaces(final List<ResultNearbySearch> googlePlacesResults) {
+
+        mRestaurant = null;
+        restaurantsList = new ArrayList<>();
+
+        // Call to the Google Places API
+        Call<ListDetailResult> call;
+        ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
+
+        for (int i = 0; i < googlePlacesResults.size(); i++) {
+            call = apiService.getRestaurantDetail(getString(R.string.maps_api_key), googlePlacesResults.get(i).getPlaceId(), "name,rating,photo,url,formatted_phone_number,website,address_component,id,geometry,place_id,opening_hours");
+
+            call.enqueue(new Callback<ListDetailResult>() {
+                @Override
+                public void onResponse(@NonNull Call<ListDetailResult> call, @NonNull Response<ListDetailResult> response) {
+                    if (!response.isSuccessful()) {
+                        Toast.makeText(getContext(), "Code: " + response.code(), Toast.LENGTH_LONG).show();
+                        Log.d(TAG, "onResponse: error");
+                        return;
+                    }
+
+                    ListDetailResult posts = response.body();
+                    if (posts != null) {
+                        mRestaurant = posts.getResult();
+                        // fill the recyclerview
+                        restaurantsList.add(mRestaurant);
+
+                        adapter = new RestaurantsListAdapter(restaurantsList, Glide.with(mRecyclerView), googlePlacesResults.size(), userLatLng);
+                        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+                        mRecyclerView.setAdapter(adapter);
+
+                        // Launch DetailRestoActiviy when user clicks on an articles item
+                        adapter.setOnItemClickedListener(new RestaurantsListAdapter.OnItemClickedListener() {
+
+                            public void OnItemClicked(int position) {
+                                Intent WVIntent = new Intent(getContext(), RestaurantInformation.class);
+                                WVIntent.putExtra(PLACEIDRESTO, restaurantsList.get(position).getPlaceId());
+                                startActivity(WVIntent);
+                            }
+                        });
+                    }
+
+                }
+                @Override
+                public void onFailure(@NonNull Call<ListDetailResult> call, @NonNull Throwable t) {
+                    Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_LONG).show();
+                    Log.e(TAG, t.toString());
+                }
+            });
+        }
+    }
+
+    public void enableMyLocation(LatLng userLatLng){
+        this.userLatLng = userLatLng;
     }
 }
