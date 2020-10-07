@@ -1,6 +1,7 @@
 package com.ludovic.go4lunch.fragments;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.location.Address;
@@ -24,9 +25,11 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.ludovic.go4lunch.LunchActivity;
 import com.ludovic.go4lunch.R;
 import com.ludovic.go4lunch.RestaurantInformation;
 import com.ludovic.go4lunch.api.RestHelper;
+import com.ludovic.go4lunch.api.locationListener;
 import com.ludovic.go4lunch.models.Restaurant;
 import com.ludovic.go4lunch.utils.BaseActivity;
 import com.ludovic.go4lunch.utils.ConvertDate;
@@ -41,8 +44,6 @@ import com.ludovic.go4lunch.Nearby.ResultNearbySearch;
 public class MapsFragment extends SupportMapFragment implements
                                                         GoogleMap.OnMyLocationButtonClickListener,
                                                         OnMapReadyCallback  {
-
-
     /**
      * Request code for location permission request.
      *
@@ -58,33 +59,22 @@ public class MapsFragment extends SupportMapFragment implements
 
     private GoogleMap map;
     private Marker marker;
-    private double lat;
-    private double lng;
     private String today;
 
-    private static final float DEFAULT_ZOOM = 15f;
     private final String TAG = MapsFragment.class.getSimpleName();
 
-
-    public interface locationListener {
-        public void mapReady();
-        public void setMap(GoogleMap map);
-    }
-
     public locationListener myLocationListener;
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
     }
 
-    public void updateNearbyPlaces(List<ResultNearbySearch> ResultNearbySearch){
+    public void updateNearbyPlaces(List<ResultNearbySearch> ResultNearbySearch, GoogleMap map){
         List<ResultNearbySearch> placesToShowId;
         placesToShowId = ResultNearbySearch;
-        displayNearbyPlaces(placesToShowId);
+        displayNearbyPlaces(placesToShowId, map);
     }
 
     @Override
@@ -95,22 +85,15 @@ public class MapsFragment extends SupportMapFragment implements
         ConvertDate forToday = new ConvertDate();
         today = forToday.getTodayDate();
 
-      getMapAsync(this);
-        // Default position before geolocation
-        lat = 47.3936417;
-        lng = 0.6805983;
-
+        getMapAsync(this);
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
         map.setOnMyLocationButtonClickListener(this);
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), DEFAULT_ZOOM));
         myLocationListener.setMap(map);
         myLocationListener.mapReady();
-
-
 
         // Removes the default markers from the map to have a clean map background
         try {
@@ -126,21 +109,7 @@ public class MapsFragment extends SupportMapFragment implements
         } catch (Resources.NotFoundException e) {
             Log.e(TAG, "Can't find style. Error: ", e);
         }
-
     }
-
-    /**
-     * Enables the My Location layer if the fine location permission has been granted.
-     */
-    public void enableMyLocation(LatLng userLatLng) {
-        // update location with geolocation
-        lat = userLatLng.latitude;
-        lng = userLatLng.longitude;
-
-        if (map != null) {
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), DEFAULT_ZOOM));
-
-        }}
 
     @Override
     public boolean onMyLocationButtonClick() {
@@ -150,7 +119,7 @@ public class MapsFragment extends SupportMapFragment implements
         return false;
     }
 
-    private void displayNearbyPlaces(List<ResultNearbySearch> arrayIdRestaurant) {
+    private void displayNearbyPlaces(List<ResultNearbySearch> arrayIdRestaurant,GoogleMap map) {
 
         Log.d(TAG, "displayNearbyPLaces "+arrayIdRestaurant.size());
         for (int i = 0; i < arrayIdRestaurant.size(); i++) {
@@ -162,7 +131,7 @@ public class MapsFragment extends SupportMapFragment implements
 
             // we posts pins
             LatLng restaurantLatLng = new LatLng(restaurantLat, restaurantLng);
-            updateLikeColorMarker(restaurantPlaceId, restaurantName, restaurantLatLng);
+            updateLikeColorMarker(restaurantPlaceId, restaurantName, restaurantLatLng,map);
 
             map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
                 @Override
@@ -174,7 +143,7 @@ public class MapsFragment extends SupportMapFragment implements
     }
 
     // Update Marker color
-    private void updateLikeColorMarker(final String placeId, final String name, final LatLng latLng) {
+    private void updateLikeColorMarker(final String placeId, final String name, final LatLng latLng, GoogleMap map) {
 
         Log.d(TAG, "add marker "+name +latLng);
         // The color of the pin is adjusted according to the user's choice
@@ -187,7 +156,6 @@ public class MapsFragment extends SupportMapFragment implements
         marker = map.addMarker(markerOptions);
         marker.setTag(placeId);
         Log.d(TAG, "red marker ");
-
 
         RestHelper.getRestaurant(placeId).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
@@ -221,12 +189,12 @@ public class MapsFragment extends SupportMapFragment implements
     //--------------------------------------------------------------------------------------------------------------------
     //manages the click on the info bubble
     //--------------------------------------------------------------------------------------------------------------------
-    private void launchRestaurantDetail(Marker marker ) {
-        String PLACEIDRESTO = "resto_place_id";
+    private void launchRestaurantDetail(Marker marker) {
+        String PLACEIDRESTAURANT = "resto_place_id";
         String ref = (String) marker.getTag();
         Intent WVIntent = new Intent(getContext(), RestaurantInformation.class);
         //Id
-        WVIntent.putExtra(PLACEIDRESTO, ref);
+        WVIntent.putExtra(PLACEIDRESTAURANT, ref);
         startActivity(WVIntent);
     }
 

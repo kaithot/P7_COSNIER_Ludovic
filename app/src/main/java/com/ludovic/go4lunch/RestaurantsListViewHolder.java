@@ -32,7 +32,7 @@ public class RestaurantsListViewHolder extends RecyclerView.ViewHolder{
     private boolean textOK = false;
     private String today;
 
-    private static final String TAG = "ListOfRestaurantsViewho";
+    private final String TAG = RestaurantsListViewHolder.class.getSimpleName();
 
     public RestaurantsListViewHolder(View itemView, final RestaurantsListAdapter.OnItemClickedListener listener, LatLng latLng) {
         super(itemView);
@@ -43,7 +43,7 @@ public class RestaurantsListViewHolder extends RecyclerView.ViewHolder{
         addressTextView =  itemView.findViewById(R.id.restaurant_address);
         openTextView =  itemView.findViewById(R.id.restaurant_openinghours);
         proximityTextView =  itemView.findViewById(R.id.restaurant_proximity);
-        interestedPeopleTextView =  itemView.findViewById(R.id.restaurant_choices_ic);
+        interestedPeopleTextView =  itemView.findViewById(R.id.restaurant_choices_nb);
 
         star1 =  itemView.findViewById(R.id.restaurant_star1);
         star2 =  itemView.findViewById(R.id.restaurant_star2);
@@ -62,7 +62,6 @@ public class RestaurantsListViewHolder extends RecyclerView.ViewHolder{
             }
         });
     }
-
 
     void updateWithDetailsRestaurants(RestaurantResult restaurantDetail, RequestManager glide) {
         // Name of restaurant

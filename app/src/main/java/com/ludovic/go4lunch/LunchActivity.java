@@ -40,6 +40,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.ludovic.go4lunch.api.ApiClient;
 import com.ludovic.go4lunch.api.ApiInterface;
 import com.ludovic.go4lunch.api.UserHelper;
+import com.ludovic.go4lunch.api.locationListener;
 import com.ludovic.go4lunch.fragments.ListFragment;
 import com.ludovic.go4lunch.fragments.MapsFragment;
 import com.ludovic.go4lunch.fragments.WorkmatesFragment;
@@ -54,15 +55,14 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class LunchActivity extends BaseActivity
-        implements NavigationView.OnNavigationItemSelectedListener,
-                    MapsFragment.locationListener{
+public class LunchActivity  extends BaseActivity
+                            implements  NavigationView.OnNavigationItemSelectedListener,
+                                        locationListener {
 
     /**
      * Flag indicating whether a requested permission has been denied after returning in
      * {@link #onRequestPermissionsResult(int, String[], int[])}.
      */
-    private boolean permissionDenied = false;
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
@@ -83,13 +83,15 @@ public class LunchActivity extends BaseActivity
     private Context mContext;
     private GoogleMap map;
     private FusedLocationProviderClient fusedLocationClient;
-    private static final float DEFAULT_ZOOM = 15f;
+    private static final float DEFAULT_ZOOM = 17;
     private List<ResultNearbySearch> results;
     private String placeId = "place_id";
     private int radius = 1000;
     private String type = "restaurant";
+    private LatLng myLatLng;
 
     private final String TAG = LunchActivity.class.getSimpleName();
+
 
 
     @Override
@@ -98,7 +100,7 @@ public class LunchActivity extends BaseActivity
         setContentView(R.layout.lunch_activity);
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
+        mContext = this;
         Places.initialize(getApplicationContext(), getString(R.string.maps_api_key));
 
         this.configureToolBar();
@@ -266,9 +268,9 @@ public class LunchActivity extends BaseActivity
                         Location currentLocation = (Location) task.getResult();
                         assert currentLocation != null;
 
-                        fragment1.enableMyLocation(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
-                        fragment2.enableMyLocation(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
+                        map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), DEFAULT_ZOOM));
                         searchNearbyRestaurants(currentLocation.getLatitude(), currentLocation.getLongitude());
+                        userLatLng(new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude()));
 
                     } else {
                         Log.d(TAG, "Current location is null. Using defaults.");
@@ -289,7 +291,7 @@ public class LunchActivity extends BaseActivity
     }
 
     public void searchNearbyRestaurants(double latitude, double longitude){
-        Log.d("info :", "searchNearbyRestaurants: ");
+        Log.d(TAG, "searchNearbyRestaurants: ");
         //String keyword = "";
         String key = getString(R.string.maps_api_key);
         String lat = String.valueOf(latitude);
@@ -297,7 +299,7 @@ public class LunchActivity extends BaseActivity
 
         String location = lat+","+lng;
         Call<NearbyPlacesList> call;
-        Log.d("info :", "location "+location);
+        Log.d(TAG, "location "+location);
         ApiInterface googleMapService = ApiClient.getClient().create(ApiInterface.class);
         call = googleMapService.getNearBy(location, radius, type, key);
         call.enqueue(new Callback<NearbyPlacesList>() {
@@ -306,9 +308,10 @@ public class LunchActivity extends BaseActivity
                 if (response.isSuccessful()) {
                     if (response.body() != null) {
                         results = response.body().getResults();
-                        fragment1.updateNearbyPlaces(results);
-                        fragment2.updateNearbyPlaces(results);
-                        Log.d("info", "success: "+results.toString());
+                        fragment1.updateNearbyPlaces(results, map);
+                        fragment2.results=results;
+
+                        Log.d(TAG, "success: "+results.toString());
                     }
 
                 } else {
@@ -318,7 +321,7 @@ public class LunchActivity extends BaseActivity
 
             @Override
             public void onFailure(@NonNull Call<NearbyPlacesList> call, @NonNull Throwable t) {
-                Log.d("info", "onFailure: "+t.getMessage());
+                Log.d(TAG, "onFailure: "+t.getMessage());
                 Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
@@ -359,4 +362,11 @@ public class LunchActivity extends BaseActivity
     public void setMap(GoogleMap map) {
         this.map = map;
     }
+
+    @Override
+    public void userLatLng(LatLng userLatLng) {
+        this.myLatLng = userLatLng;
+    }
+
+
 }

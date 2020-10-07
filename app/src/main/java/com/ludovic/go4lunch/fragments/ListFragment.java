@@ -1,6 +1,7 @@
 package com.ludovic.go4lunch.fragments;
 
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.maps.model.LatLng;
 import com.ludovic.go4lunch.Details.RestaurantResult;
+import com.ludovic.go4lunch.LunchActivity;
 import com.ludovic.go4lunch.R;
 import com.ludovic.go4lunch.RestaurantInformation;
 import com.ludovic.go4lunch.RestaurantsListAdapter;
@@ -27,6 +29,8 @@ import java.util.List;
 
 import com.ludovic.go4lunch.Nearby.ListDetailResult;
 import com.ludovic.go4lunch.Nearby.ResultNearbySearch;
+import com.ludovic.go4lunch.api.locationListener;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -34,16 +38,18 @@ import retrofit2.Response;
 
 public class ListFragment extends Fragment {
 
+    public List<ResultNearbySearch> results;
     private RecyclerView mRecyclerView;
 
-    private final static String TAG = "ListRestoFragment" ;
+    private final String TAG = ListFragment.class.getSimpleName();
     private String PLACEIDRESTO = "resto_place_id";
 
     private RestaurantsListAdapter adapter;
     private RestaurantResult mRestaurant;
     private ArrayList<RestaurantResult> restaurantsList = new ArrayList<>();
 
-    private LatLng userLatLng;
+    public locationListener myLocationListener;
+    private LatLng myLatLng;
 
     public ListFragment() {
         // Required empty public constructor
@@ -52,15 +58,21 @@ public class ListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_list, container, false);
         mRecyclerView = view.findViewById(R.id.fragment_restaurants_recyclerview);
-
+        myLocationListener = (locationListener) getContext();
+     if (results != null) {
+         Log.e(TAG, "launch updateNearbyPlaces");
+         updateNearbyPlaces(results);
+     }
         return view;
     }
 
     public void updateNearbyPlaces(final List<ResultNearbySearch> googlePlacesResults) {
 
+        myLocationListener.userLatLng(myLatLng);
         mRestaurant = null;
         restaurantsList = new ArrayList<>();
 
@@ -69,7 +81,7 @@ public class ListFragment extends Fragment {
         ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
 
         for (int i = 0; i < googlePlacesResults.size(); i++) {
-            call = apiService.getRestaurantDetail(getString(R.string.maps_api_key), googlePlacesResults.get(i).getPlaceId(), "name,rating,photo,url,formatted_phone_number,website,address_component,id,geometry,place_id,opening_hours");
+            call = apiService.getRestaurantDetail(getActivity().getString(R.string.maps_api_key), googlePlacesResults.get(i).getPlaceId(), "name,rating,photo,url,formatted_phone_number,website,address_component,id,geometry,place_id,opening_hours");
 
             call.enqueue(new Callback<ListDetailResult>() {
                 @Override
@@ -86,11 +98,11 @@ public class ListFragment extends Fragment {
                         // fill the recyclerview
                         restaurantsList.add(mRestaurant);
 
-                        adapter = new RestaurantsListAdapter(restaurantsList, Glide.with(mRecyclerView), googlePlacesResults.size(), userLatLng);
+                        adapter = new RestaurantsListAdapter(restaurantsList, Glide.with(mRecyclerView), googlePlacesResults.size(),myLatLng);
                         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
                         mRecyclerView.setAdapter(adapter);
 
-                        // Launch DetailRestoActiviy when user clicks on an articles item
+                        // Launch RestaurantInformation when user clicks on an articles item
                         adapter.setOnItemClickedListener(new RestaurantsListAdapter.OnItemClickedListener() {
 
                             public void OnItemClicked(int position) {
@@ -100,7 +112,6 @@ public class ListFragment extends Fragment {
                             }
                         });
                     }
-
                 }
                 @Override
                 public void onFailure(@NonNull Call<ListDetailResult> call, @NonNull Throwable t) {
@@ -109,9 +120,5 @@ public class ListFragment extends Fragment {
                 }
             });
         }
-    }
-
-    public void enableMyLocation(LatLng userLatLng){
-        this.userLatLng = userLatLng;
     }
 }

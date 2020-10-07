@@ -18,12 +18,6 @@ import java.util.List;
 
 public class RestaurantsListAdapter extends RecyclerView.Adapter<RestaurantsListViewHolder> {
 
-    private TextView nameTextView, addressTextView, openTextView, proximityTextView, loversTextView;
-    private ImageView star1, star2, star3, photo;
-    private LatLng myLatLng;
-    private boolean textOK = false;
-    private String today;
-
     private List<RestaurantResult> restaurantsList;
     private RequestManager glide;
     private OnItemClickedListener mListener;
@@ -39,7 +33,7 @@ public class RestaurantsListAdapter extends RecyclerView.Adapter<RestaurantsList
     }
 
     // Constructor
-    public RestaurantsListAdapter(List<RestaurantResult> restoList, RequestManager glide, int length, LatLng latLng) {
+    public RestaurantsListAdapter(List<RestaurantResult> restaurantsList, RequestManager glide, int length, LatLng latLng) {
         this.restaurantsList = restaurantsList;
         this.glide = glide;
         this.length =  length;
