@@ -1,17 +1,19 @@
 package com.ludovic.go4lunch.fragments;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
 import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
+import android.location.Address;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -25,21 +27,25 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.ludovic.go4lunch.LunchActivity;
-import com.ludovic.go4lunch.Nearby.ResultNearbySearch;
+import com.ludovic.go4lunch.Myapplication;
 import com.ludovic.go4lunch.R;
+import com.ludovic.go4lunch.RestaurantInformation;
 import com.ludovic.go4lunch.api.RestHelper;
 import com.ludovic.go4lunch.api.locationListener;
 import com.ludovic.go4lunch.models.Restaurant;
 import com.ludovic.go4lunch.utils.BaseActivity;
 import com.ludovic.go4lunch.utils.ConvertDate;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-public class MapsFragment extends Fragment implements GoogleMap.OnMarkerClickListener,
-                                                        GoogleMap.OnMyLocationButtonClickListener {
+import com.ludovic.go4lunch.Nearby.ResultNearbySearch;
 
+public class MapsFragment3 extends SupportMapFragment implements
+                                                        GoogleMap.OnMyLocationButtonClickListener,
+                                                        OnMapReadyCallback  {
     /**
      * Request code for location permission request.
      *
@@ -59,62 +65,14 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMarkerClickLis
 
     public LunchActivity activity;
 
-    private final String TAG = MapsFragment.class.getSimpleName();
+    private final String TAG = MapsFragment3.class.getSimpleName();
 
     public locationListener myLocationListener;
 
-    private OnMapReadyCallback callback = new OnMapReadyCallback() {
-
-        /**
-         * Manipulates the map once available.
-         * This callback is triggered when the map is ready to be used.
-         * This is where we can add markers or lines, add listeners or move the camera.
-         * In this case, we just add a marker near Sydney, Australia.
-         * If Google Play services is not installed on the device, the user will be prompted to
-         * install it inside the SupportMapFragment. This method will only be triggered once the
-         * user has installed Google Play services and returned to the app.
-         */
-        @Override
-        public void onMapReady(GoogleMap googleMap) {
-            map = googleMap;
-            map.setOnMyLocationButtonClickListener(MapsFragment.this);
-            myLocationListener.setMap(map);
-            myLocationListener.mapReady();
-
-            // Removes the default markers from the map to have a clean map background
-            try {
-                // Customise the styling of the base map using a JSON object defined
-                // in a raw resource file.
-                boolean success = map.setMapStyle(
-                        MapStyleOptions.loadRawResourceStyle(
-                                Objects.requireNonNull(getContext()), R.raw.style_json));
-
-                if (!success) {
-                    Log.e(TAG, "Style parsing failed.");
-                }
-            } catch (Resources.NotFoundException e) {
-                Log.e(TAG, "Can't find style. Error: ", e);
-            }
-            map.setOnMarkerClickListener(MapsFragment.this);
-        }
-    };
-
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_maps2, container, false);
-    }
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        SupportMapFragment mapFragment =
-                (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
-        if (mapFragment != null) {
-            mapFragment.getMapAsync(callback);
-        }
     }
 
     public void updateNearbyPlaces(List<ResultNearbySearch> ResultNearbySearch, GoogleMap map){
@@ -127,9 +85,47 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMarkerClickLis
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         myLocationListener = (locationListener) getActivity();
+
         ConvertDate forToday = new ConvertDate();
         today = forToday.getTodayDate();
 
+        getMapAsync(this);
+    }
+    
+    public void onAttach(@NonNull Activity activity) {
+        super.onAttach(activity);
+        this.activity = (LunchActivity) activity;
+        Log.d(TAG, "fragment attaché");
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        Log.d(TAG, "fragment détaché");
+    }
+
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        map = googleMap;
+        map.setOnMyLocationButtonClickListener(this);
+        myLocationListener.setMap(map);
+        myLocationListener.mapReady();
+
+        // Removes the default markers from the map to have a clean map background
+        try {
+            // Customise the styling of the base map using a JSON object defined
+            // in a raw resource file.
+            boolean success = map.setMapStyle(
+                    MapStyleOptions.loadRawResourceStyle(
+                            Objects.requireNonNull(getContext()), R.raw.style_json));
+
+            if (!success) {
+                Log.e(TAG, "Style parsing failed.");
+            }
+        } catch (Resources.NotFoundException e) {
+            Log.e(TAG, "Can't find style. Error: ", e);
+        }
     }
 
     @Override
@@ -157,12 +153,20 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMarkerClickLis
             map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
                 @Override
                 public void onInfoWindowClick(Marker marker) {
-                    myLocationListener.launchRestaurantDetail(marker);
+                   myLocationListener.launchRestaurantDetail(marker);
                 }
             });
+            map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                @Override
+                public boolean onMarkerClick(Marker marker) {
+                    myLocationListener.launchRestaurantDetail(marker);
+                    return true;
+                }
+            }) ;
         }
     }
 
+    // Update Marker color
     private void updateLikeColorMarker(final String placeId, final String name, final LatLng latLng, GoogleMap map) {
 
         Log.d(TAG, "add marker "+name +latLng);
@@ -206,6 +210,11 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMarkerClickLis
         });
     }
 
+    //--------------------------------------------------------------------------------------------------------------------
+    //manages the click on the info bubble
+    //--------------------------------------------------------------------------------------------------------------------
+
+    // [START maps_check_location_permission_result]
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode != LOCATION_PERMISSION_REQUEST_CODE) {
@@ -246,13 +255,4 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMarkerClickLis
                 .newInstance(true).show(getFragmentManager(), "dialog");
     }
 
-    @Override
-    public boolean onMarkerClick(Marker marker) {
-        if (myLocationListener != null) {
-            myLocationListener.launchRestaurantDetail(marker);
-        }else {
-            Log.d(TAG, "error mylocationlistener null "+getActivity()+" "+getContext());
-        }
-        return true;
-    }
 }

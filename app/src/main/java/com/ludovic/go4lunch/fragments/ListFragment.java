@@ -60,7 +60,7 @@ public class ListFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         // Inflate the layout for this fragment
-        View view =  inflater.inflate(R.layout.fragment_list, container, false);
+        View view =  inflater.inflate(R.layout.fragment_list,  null);
         mRecyclerView = view.findViewById(R.id.fragment_restaurants_recyclerview);
         myLocationListener = (locationListener) getContext();
      if (results != null) {

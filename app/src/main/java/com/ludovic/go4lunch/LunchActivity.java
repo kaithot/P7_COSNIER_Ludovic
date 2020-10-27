@@ -22,6 +22,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -31,6 +32,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
@@ -91,8 +93,8 @@ public class LunchActivity  extends BaseActivity
     private LatLng myLatLng;
 
     private final String TAG = LunchActivity.class.getSimpleName();
-
-
+    private int currentTabIndex;
+    private Fragment[] fragments;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,6 +113,25 @@ public class LunchActivity  extends BaseActivity
 
     }
 
+    private  void switchFragment(int selectedTabIndex, String tag ) {
+        int previousTabIndex = this.currentTabIndex;
+        this.currentTabIndex = selectedTabIndex;
+
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+        Log.d(TAG,"tag: "+tag+" position: "+selectedTabIndex);
+        // if the fragment has not yet been added to the container, add it first
+        if (getSupportFragmentManager().findFragmentByTag(tag) == null) {
+            transaction.add(R.id.activity_lunch_frame_layout, fragments[this.currentTabIndex], tag);
+            Log.d(TAG,"ajout d'un fragment: "+fragments[this.currentTabIndex]);
+        }
+
+        transaction.hide(fragments[previousTabIndex]);
+        transaction.show(fragments[this.currentTabIndex]);
+        transaction.commit();
+    }
+
     @Override
     public void onBackPressed() {
 
@@ -120,6 +141,7 @@ public class LunchActivity  extends BaseActivity
             super.onBackPressed();
         }
     }
+
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
 
@@ -173,12 +195,23 @@ public class LunchActivity  extends BaseActivity
     }
 
     private void configureBottomNavigationView() {
+        fragments = new Fragment[3];
+        Fragment selectedFragment = null;
+        selectedFragment = new MapsFragment();
+        fragments[0] = selectedFragment;
+
+        selectedFragment = new ListFragment();
+        fragments[1] = selectedFragment;
+
+        selectedFragment = new WorkmatesFragment();
+        fragments[2] = selectedFragment;
+
+        switchFragment(0,MapsFragment.class.getSimpleName());
 
         this.bottomNavigationView = (BottomNavigationView) findViewById(R.id.main_nav);
         bottomNavigationView.setOnNavigationItemSelectedListener(navListener);
 
-        getSupportFragmentManager().beginTransaction().replace(R.id.activity_lunch_frame_layout,
-                new MapsFragment()).commit();
+
 
     }
 
@@ -190,21 +223,15 @@ public class LunchActivity  extends BaseActivity
                     switch (item.getItemId()) {
 
                         case R.id.nav_map:
-                            selectedFragment = fragment1;
-                            fragment1 = new MapsFragment();
+                            switchFragment(0,MapsFragment.class.getSimpleName());
                             break;
                         case R.id.nav_list:
-                            selectedFragment = fragment2;
-                            fragment2 = new ListFragment();
+                            switchFragment(1,ListFragment.class.getSimpleName());
                             break;
                         case R.id.nav_workmates:
-                            selectedFragment = fragment3;
-                            fragment3 = new WorkmatesFragment();
+                            switchFragment(2,WorkmatesFragment.class.getSimpleName());
                             break;
                     }
-                    assert selectedFragment != null;
-                    getSupportFragmentManager().beginTransaction().replace(R.id.activity_lunch_frame_layout,
-                           selectedFragment).commit();
                     return true;
                 }
             };
@@ -366,6 +393,16 @@ public class LunchActivity  extends BaseActivity
     @Override
     public void userLatLng(LatLng userLatLng) {
         this.myLatLng = userLatLng;
+    }
+
+    @Override
+    public void launchRestaurantDetail(Marker marker) {
+            String PLACEIDRESTAURANT = "resto_place_id";
+            String ref = (String) marker.getTag();
+            Intent WVIntent = new Intent(this, RestaurantInformation.class);
+            //Id
+            WVIntent.putExtra(PLACEIDRESTAURANT, ref);
+            startActivity(WVIntent);
     }
 
 
